@@ -11,10 +11,10 @@ def encode(imgFilename, msgFilename):
 	# Open the image.
 	image = utils.openImage(imgFilename)
 	if image == None:
-		print('ERROR: could not open the image')
+		utils.log('ERROR: could not open the image')
 		return -1
 	else:
-		print('Image opened correctly')
+		utils.log('Image opened correctly')
 
 	# TODO: if the image is JPEG, first convert it to PNG, as we need a lossless format
 	# for the message information not to be lost.
@@ -22,21 +22,21 @@ def encode(imgFilename, msgFilename):
 	# Get the string inside the provided message file.
 	stringMessage = utils.readStringFromFile(msgFilename)
 	if stringMessage == None:
-		print('ERROR: there was a problem reading the message from the provided file')
-		print('Provided message file: {}'.format(msgFilename))
+		utils.log('ERROR: there was a problem reading the message from the provided file')
+		utils.log('Provided message file: {}'.format(msgFilename))
 		return -1
 	else:
-		print('Message read from file:')
-		print('{}'.format(stringMessage))
+		utils.log('Message read from file:')
+		utils.log('{}'.format(stringMessage))
 
 	# Transform the secret message to binary format.
 	binaryMessage = stringToBinary(stringMessage)
 	if binaryMessage == None:
-		print('ERROR: could not convert the message to binary format')
+		utils.log('ERROR: could not convert the message to binary format')
 		return -1
 	else:
-		print('Message converted to binary format:')
-		print('{}'.format(binaryMessage))
+		utils.log('Message converted to binary format:')
+		utils.log('{}'.format(binaryMessage))
 	
 	# TODO: get some metadata from the image to check the size of the image is enough
 	# to store the secret message.
@@ -44,24 +44,24 @@ def encode(imgFilename, msgFilename):
 	# Get all the pixel values in the image.
 	pixels = utils.extractPixelsFromImage(image)
 	if pixels == None:
-		print('ERROR: could not extract pixels from image')
+		utils.log('ERROR: could not extract pixels from image')
 		return -1
 	else:
-		print('Pixels extracted from image')
-	print('First ten pixels in the input image:')
+		utils.log('Pixels extracted from image')
+	utils.log('First ten pixels in the input image:')
 	for i in range(10):
-		print('\t{} -> {}'.format(i, pixels[i]))
+		utils.log('\t{} -> {}'.format(i, pixels[i]))
 
 	# Get a new pixel list where the message is encoded in the least significant bits.
 	newPixels = encodeMessageInPixels(pixels, binaryMessage)
 	if newPixels == None:
-		print('ERROR: there was a problem encoding the message inside the image')
+		utils.log('ERROR: there was a problem encoding the message inside the image')
 		return -1
 	else:
-		print('Message encoded correctly inside the image')
-		print('First ten pixels of the encoded image:')
+		utils.log('Message encoded correctly inside the image')
+		utils.log('First ten pixels of the encoded image:')
 		for i in range(10):
-			print('\t{} -> {}'.format(i, newPixels[i]))
+			utils.log('\t{} -> {}'.format(i, newPixels[i]))
 	
 	# Create the new image with the new pixel values and export it.
 	encodedImage = Image.new(image.mode, image.size)

@@ -9,18 +9,18 @@ def decode(imgFilename, msgFilename):
 	# Open the image.
 	image = utils.openImage(imgFilename)
 	if image == None:
-		print('ERROR: could not open the image')
+		utils.log('ERROR: could not open the image')
 		return -1
 	else:
-		print('Image opened correctly')
+		utils.log('Image opened correctly')
 
 	# Extract the pixels inside the image.
 	pixels = utils.extractPixelsFromImage(image)
 	if pixels == None:
-		print('ERROR: could not extract pixels from image')
+		utils.log('ERROR: could not extract pixels from image')
 		return -1
 	else:
-		print('Pixels extracted from image')
+		utils.log('Pixels extracted from image')
 	
 	# Extract the binary data in the LSB of the provided pixels.
 	binaryString = extractBinaryMessageFromPixels(pixels)
@@ -28,18 +28,18 @@ def decode(imgFilename, msgFilename):
 	# Get the string of the secret message, if there is one.
 	secretMessage = extractSecretMessage(binaryString)
 	if secretMessage == None:
-		print('ERROR: no secret message was found inside the image')
+		utils.log('ERROR: no secret message was found inside the image')
 		return -1
 	else:
-		print('Secret message found inside the image:')
-		print('{}'.format(secretMessage))
+		utils.log('Secret message found inside the image:')
+		utils.log('{}'.format(secretMessage))
 	
 	# Finally, store the secret message inside the requested file.
 	if utils.writeStringToFile(secretMessage, msgFilename) != 0:
-		print('ERROR: could not write secret message to file {}'.format(msgFilename))
+		utils.log('ERROR: could not write secret message to file {}'.format(msgFilename))
 		return -1
 	else:
-		print('Secret message written to file')
+		utils.log('Secret message written to file')
 	
 	return 0
 
@@ -70,7 +70,7 @@ def extractSecretMessage(binaryString):
 
 	# Try to find the format token at the beginning of the byte array.
 	if not byteArray[0:len(binaryToken)] == binaryToken:
-		print('ERROR: the binary stream does not start with the expected "$$$$$" token')
+		utils.log('ERROR: the binary stream does not start with the expected "$$$$$" token')
 		return None
 	
 	# Discard the beginning.
@@ -78,7 +78,7 @@ def extractSecretMessage(binaryString):
 
 	# Try to find again the same sequence that marks the end of the message.
 	if not binaryToken in byteArray:
-		print('ERROR: the binary stream does not end with the expected "$$$$$" token')
+		utils.log('ERROR: the binary stream does not end with the expected "$$$$$" token')
 		return None
 	
 	# Discard the token at the end.
@@ -88,6 +88,6 @@ def extractSecretMessage(binaryString):
 	try:
 		return byteArray.decode('utf-8')
 	except Exception as exception:
-		print(exception)
-		print('ERROR: could not decode the byte stream of the secret message')
+		utils.log(exception)
+		utils.log('ERROR: could not decode the byte stream of the secret message')
 		return None
