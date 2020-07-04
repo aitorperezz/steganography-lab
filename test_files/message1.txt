@@ -1,1 +1,7 @@
-Hello people how are you
+Hello people how you doin.
+
+This is a medium size text, with some special characters!!
+
+email@gmail.com
+
+Algún texto en español, vamos a ver qué pasa?

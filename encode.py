@@ -1,34 +1,33 @@
 import math
 from PIL import Image
 
-from utils import readStringFromFile
+import utils
 
 # Reads an image from imgFilename and a text from msgFilename and encodes
 # the text inside the image using Least Significant Bit Steganography.
-# The output image is called encoded.png and stored at the working directory.
+# The output image is called 'encoded.png' and stored at the working directory.
 def encode(imgFilename, msgFilename):
 
-	# Try to open the image.
-	try:
-		image = Image.open(imgFilename)
-	except Exception as exception:
-		print('ERROR: the image could not be opened')
-		print(exception)
+	# Open the image.
+	image = utils.openImage(imgFilename)
+	if image == None:
+		print('ERROR: could not open the image')
 		return -1
-	print('Image opened correctly')
+	else:
+		print('Image opened correctly')
 
 	# TODO: if the image is JPEG, first convert it to PNG, as we need a lossless format
 	# for the message information not to be lost.
 
 	# Get the string inside the provided message file.
-	stringMessage = readStringFromFile(msgFilename)
+	stringMessage = utils.readStringFromFile(msgFilename)
 	if stringMessage == None:
 		print('ERROR: there was a problem reading the message from the provided file')
-		print('Provided file: {}'.format(msgFilename))
+		print('Provided message file: {}'.format(msgFilename))
 		return -1
 	else:
-		print('Message correctly read from file:')
-		print('\t{}'.format(stringMessage))
+		print('Message read from file:')
+		print('{}'.format(stringMessage))
 
 	# Transform the secret message to binary format.
 	binaryMessage = stringToBinary(stringMessage)
@@ -36,24 +35,24 @@ def encode(imgFilename, msgFilename):
 		print('ERROR: could not convert the message to binary format')
 		return -1
 	else:
-		print('Message correctly converted to binary format:')
-		print('\t{}'.format(binaryMessage))
+		print('Message converted to binary format:')
+		print('{}'.format(binaryMessage))
 	
 	# TODO: get some metadata from the image to check the size of the image is enough
 	# to store the secret message.
 
 	# Get all the pixel values in the image.
-	try:
-		pixels = list(image.getdata())
-	except Exception as exception:
-		print('ERROR: could not extract the pixels from the image')
-		print(exception)
+	pixels = utils.extractPixelsFromImage(image)
+	if pixels == None:
+		print('ERROR: could not extract pixels from image')
 		return -1
+	else:
+		print('Pixels extracted from image')
 	print('First ten pixels in the input image:')
 	for i in range(10):
 		print('\t{} -> {}'.format(i, pixels[i]))
 
-	# Modify the pixel list including the message in the least significant bits.
+	# Get a new pixel list where the message is encoded in the least significant bits.
 	newPixels = encodeMessageInPixels(pixels, binaryMessage)
 	if newPixels == None:
 		print('ERROR: there was a problem encoding the message inside the image')
@@ -64,7 +63,7 @@ def encode(imgFilename, msgFilename):
 		for i in range(10):
 			print('\t{} -> {}'.format(i, newPixels[i]))
 	
-	# Create the new image with the new values and export it.
+	# Create the new image with the new pixel values and export it.
 	encodedImage = Image.new(image.mode, image.size)
 	encodedImage.putdata(newPixels)
 	encodedImage.save('encoded.png')
@@ -72,19 +71,16 @@ def encode(imgFilename, msgFilename):
 	return 0
 
 
-# Append the indicators of beginning and end of string, then transform
-# into a list where each value is the binary representation of a byte in the original
-# string, using utf-8 as the encoder.
+# Appends the format tokens to the beginning and end of the string, then gets
+# the binary representation of the string using utf-8 as the encoder. Returns a string
+# of only '0' and '1' characters.
 def stringToBinary(string):
 
-	# Add the delimiters of the string.
-	finalString = '$$$$$' + string + '$$$$$'
-	
-	# Get a list of bytes encoding the string in utf-8.
-	byteString = bytearray(finalString, encoding='utf-8')
+	# Add format tokens to the string and transform into a byte array.
+	byteList = bytearray(utils.FORMAT_TOKEN + string + utils.FORMAT_TOKEN, encoding='utf-8')
 
-	# Join all those bytes in one big string of only zeros and ones.
-	return ''.join([format(byte, '08b') for byte in byteString])
+	# Join all those bytes in one big string of only 0 and 1 chars, like '0110101'.
+	return ''.join([format(byte, '08b') for byte in byteList])
 
 
 # Receives the list of pixels, flattened, found in the original image,
@@ -95,7 +91,7 @@ def encodeMessageInPixels(pixels, binaryMessage):
 	# Variable to store the new pixel values.
 	newPixels = []
 
-	# Index for the current 0 or 1 in the binary message, and length of the message.
+	# Index for the current position inside the binary message, and length of the message.
 	currentIndex = 0
 	messageLen = len(binaryMessage)
 
@@ -105,9 +101,7 @@ def encodeMessageInPixels(pixels, binaryMessage):
 		# Declare a new pixel.
 		newPixel = ()
 
-		# A pixel can have several values, 1 value in Black and White format,
-		# three values in RGB format. For us, this is not important, we iterate over
-		# all possible values inside the pixel.
+		# Iterate over all the values inside the pixel (RGBA values).
 		for value in pixel:
 
 			if currentIndex < messageLen:
