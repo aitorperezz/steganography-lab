@@ -24,6 +24,11 @@ def decode(imgFilename, msgFilename):
 	
 	# Extract the binary data in the LSB of the provided pixels.
 	binaryString = extractBinaryMessageFromPixels(pixels)
+	if binaryString == None:
+		utils.log('ERROR: could not extract the LSBs of the pixels inside the image')
+		return -1
+	else:
+		utils.log('Extracted the LSBs of all the pixels inside the image')
 
 	# Get the string of the secret message, if there is one.
 	secretMessage = extractSecretMessage(binaryString)
@@ -51,11 +56,29 @@ def extractBinaryMessageFromPixels(pixels):
 	# Create an empty string to store the zeros and ones that we find inside the image.
 	binaryData = ''
 
-	# Loop through all pixels and values inside the pixels.
+	# Loop through the pixels inside the image.
 	for pixel in pixels:
-		binaryData += ''.join(['0' if value % 2 == 0 else '1' for value in pixel])
+
+		# If the pixel is iterable (a tuple), loop through all the values inside the pixel.
+		if type(pixel) == tuple:
+			binaryData += ''.join([leastSignificantBit(value) for value in pixel])
+		
+		# If not iterable (just an int), get that value only.
+		elif type(pixel) == int:
+			binaryData += leastSignificantBit(pixel)
+		
+		# For any other pixel type, return with error.
+		else:
+			utils.log('ERROR: unexpected pixel type: {}'.format(type(pixel)))
+			return None
 	
 	return binaryData
+
+
+# Returns the char corresponding to the Least Significant Bit of the 
+# provided value, i.e., a '0' or a '1'.
+def leastSignificantBit(value):
+	return '0' if value % 2 == 0 else '1'
 
 
 # Looks for the format tokens at the beginning and end of a suspected message. If found, returns the string

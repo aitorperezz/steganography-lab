@@ -88,29 +88,45 @@ def stringToBinary(string):
 # bit of each value of each pixel to store the message.
 def encodeMessageInPixels(pixels, binaryMessage):
 
-	# Variable to store the new pixel values.
+	# A list to store the new pixel values.
 	newPixels = []
 
-	# Index for the current position inside the binary message, and length of the message.
+	# Current position inside the binary message, and length of the message.
 	currentIndex = 0
 	messageLen = len(binaryMessage)
 
 	# Iterate over all the pixels in the original image.
 	for pixel in pixels:
 
-		# Declare a new pixel.
-		newPixel = ()
-
-		# Iterate over all the values inside the pixel (RGBA values).
-		for value in pixel:
-
-			if currentIndex < messageLen:
-				newPixel += (math.floor(value / 2) * 2 + int(binaryMessage[currentIndex], 2), )
+		# If the pixel is iterable (a tuple), go through all its values.
+		if type(pixel) == tuple:
+			newPixel = ()
+			for value in pixel:
+				newPixel += (newPixelValue(value, binaryMessage, currentIndex, messageLen), )
 				currentIndex += 1
-			else:
-				newPixel += (value, )
 		
+		# If the pixel is not iterable, get only one new value.
+		elif type(pixel) == int:
+			newPixel = newPixelValue(pixel, binaryMessage, currentIndex, messageLen)
+			currentIndex += 1
+		
+		# If the pixel is of any other type, return with error.
+		else:
+			utils.log('ERROR: unexpected pixel type: {}'.format(type(pixel)))
+			return None
+
 		# Get the new pixel inside the growing list of pixels.
 		newPixels.append(newPixel)
 	
 	return newPixels
+
+
+# Receives the current value inside a pixel and a binary message, and tries to
+# modify the LSB of the value to store the next bit of the message.
+# If the binary message has already been consumed, it just returns the value itself.
+def newPixelValue(value, binaryMessage, currentIndex, messageLen):
+
+	if currentIndex < messageLen:
+		return math.floor(value / 2) * 2 + int(binaryMessage[currentIndex], 2)
+	else:
+		return value
