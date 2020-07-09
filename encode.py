@@ -51,9 +51,6 @@ def encode(imgFilename, msgFilename):
 	else:
 		utils.log('Message converted to binary format:')
 		utils.log('{}'.format(binaryMessage))
-	
-	# TODO: check the size of the image is enough
-	# to store the secret message.
 
 	# Get all the pixel values in the image.
 	pixels = utils.extractPixelsFromImage(image)
@@ -65,6 +62,11 @@ def encode(imgFilename, msgFilename):
 	utils.log('First ten pixels in the input image:')
 	for i in range(10):
 		utils.log('\t{} -> {}'.format(i, pixels[i]))
+
+	# Calculate the number of bits that can be used and check if the message fits.
+	if numBitsInImage(pixels) < len(binaryMessage):
+		utils.log('ERROR: the image is not big enough to fit the message')
+		return utils.ERROR_MSG_TOO_LARGE
 
 	# Get a new pixel list where the message is encoded in the least significant bits.
 	newPixels = encodeMessageInPixels(pixels, binaryMessage)
@@ -165,3 +167,16 @@ def newPixelValue(value, binaryMessage, currentIndex, messageLen):
 		return math.floor(value / 2) * 2 + int(binaryMessage[currentIndex], 2)
 	else:
 		return value
+
+
+# Receives the pixel list obtained from the image and calculates the number
+# of bits it can fit inside.
+# Remember we perform steganography only on the least significant bit of each value.
+def numBitsInImage(pixels):
+	if len(pixels) != 0:
+		if type(pixels[0]) == tuple:
+			return len(pixels) * len(pixels[0])
+		elif type(pixels[0]) == int:
+			return len(pixels)
+	else:
+		return 0

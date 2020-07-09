@@ -12,6 +12,7 @@ ERROR_ENCODING = 7 # Could not encode the message inside the list of pixels.
 ERROR_SAVE_IMG = 8 # Could not save pixels to the new image.
 ERROR_EXTRACT_MSG = 9 # Could not extract a valid message from the pixels of the image.
 ERROR_SAVE_MSG = 10 # Could not save the extracted secret message to a file.
+ERROR_MSG_TOO_LARGE = 11 # Could not encode the message inside the image. The message is too long.
 
 # Decides if the program outputs logs to the terminal (normal mode)
 # or is silent (unit testing mode).

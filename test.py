@@ -39,29 +39,44 @@ class TestImages(unittest.TestCase):
 		except OSError:
 			pass
 
-	# Test RGB and RGBA images, PNG format, should pass.
-	def testRGBImagesPNG(self):
+	# Test RGB and RGBA images, PNG format, normal ASCII text.
+	def test_PNG_RGBA_ASCII(self):
 		utils.silent = True
-		self.runCompleteTest('test_files/png_16rgba.png', 'test_files/txt_normal_small.txt')
-		self.runCompleteTest('test_files/png_16rgb.png', 'test_files/txt_normal_small.txt')
-		self.runCompleteTest('test_files/png_8rgb.png', 'test_files/txt_normal_small.txt')
-		self.runCompleteTest('test_files/png_HDrgba.png', 'test_files/txt_normal_small.txt')
+		self.runCompleteTest('test_files/png_16rgba.png', 'test_files/txt_ascii.txt')
+		self.runCompleteTest('test_files/png_16rgb.png', 'test_files/txt_ascii.txt')
+		self.runCompleteTest('test_files/png_8rgb.png', 'test_files/txt_ascii.txt')
+		self.runCompleteTest('test_files/png_HDrgba.png', 'test_files/txt_ascii.txt')
 
-	# Test Black and White images, PNG format, should pass.
-	def testBWImagesPNG(self):
+	# Test Black and White images, PNG format, normal ASCII text.
+	def test_PNG_BW_ASCII(self):
 		utils.silent = True
-		self.runCompleteTest('test_files/png_8l.png', 'test_files/txt_normal_small.txt')
+		self.runCompleteTest('test_files/png_8l.png', 'test_files/txt_ascii.txt')
 	
-	# Test all JPEG images, should pass.
-	def testJPEGImages(self):
+	# Test all JPEG images, normal ASCII text.
+	def test_JPEG_ASCII(self):
 		utils.silent = True
-		self.runCompleteTest('test_files/jpg_small.jpg', 'test_files/txt_normal_small.txt')
-		self.runCompleteTest('test_files/jpg_big.jpg', 'test_files/txt_normal_small.txt')
-		self.runCompleteTest('test_files/jpg_huge.jpg', 'test_files/txt_normal_small.txt')
+		self.runCompleteTest('test_files/jpg_small.jpg', 'test_files/txt_ascii.txt')
+		self.runCompleteTest('test_files/jpg_big.jpg', 'test_files/txt_ascii.txt')
+		self.runCompleteTest('test_files/jpg_huge.jpg', 'test_files/txt_ascii.txt')
 	
-	# TODO: test big message file (lorem ipsum) on big and small files.
+	# Test a big ASCII text on a big and a small image.
+	def test_ASCII_huge(self):
+		utils.silent = True
+		self.runCompleteTest('test_files/jpg_huge.jpg', 'test_files/txt_ascii_huge.txt')
+		self.assertEqual(encode('test_files/png_8l.png', 'test_files/txt_ascii_huge.txt'), utils.ERROR_MSG_TOO_LARGE)
 
-	# TODO: test sample UTF-8 file with lots of strange characters.
+	# Test the sample UTF-8 file with RGBA PNG images.
+	def test_PNG_RGBA_UTF8(self):
+		utils.silent = True
+		self.runCompleteTest('test_files/png_16rgba.png', 'test_files/txt_utf8.txt')
+		self.runCompleteTest('test_files/png_16rgb.png', 'test_files/txt_utf8.txt')
+		self.runCompleteTest('test_files/png_8rgb.png', 'test_files/txt_utf8.txt')
+		self.runCompleteTest('test_files/png_HDrgba.png', 'test_files/txt_utf8.txt')
+
+	# Test the sample UTF-8 file with BW PNG images.
+	def test_PNG_BW_UTF8(self):
+		utils.silent = True
+		self.assertEqual(encode('test_files/png_8l.png', 'test_files/txt_utf8.txt'), utils.ERROR_MSG_TOO_LARGE)
 
 	# TODO: test a non JPEG and non PNG image.
 
