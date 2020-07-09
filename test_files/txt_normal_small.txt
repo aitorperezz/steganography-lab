@@ -1,0 +1,4 @@
+This is a simple short file with not so strange characters.
+¿?()=/(&%$#@
+Un texto en español para comprobación de tildes en las fotografías.
+0123456789/*-

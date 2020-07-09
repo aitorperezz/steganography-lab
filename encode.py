@@ -1,5 +1,5 @@
+import os
 import math
-from PIL import Image
 
 import utils
 
@@ -8,23 +8,37 @@ import utils
 # The output image is called 'encoded.png' and stored at the working directory.
 def encode(imgFilename, msgFilename):
 
+	# If the image is not JPEG or PNG, return with error.
+	fileRoot, fileExtension = os.path.splitext(imgFilename)
+	if not isJPEG(fileExtension) and not isPNG(fileExtension):
+		utils.log('ERROR: the extension of the image is not supported')
+		utils.log('ERROR: please provide a PNG or JPEG image')
+		return utils.ERROR_NOT_SUPPORTED
+
+	# If a JPEG image was provided, first convert it to PNG (a lossless 
+	# format is needed not to lose the information of the message).
+	filename = fileRoot + '.png'
+	if isJPEG(fileExtension):
+		if utils.convertImage(imgFilename, filename) != 0:
+			utils.log('ERROR: could not convert image from JPEG to PNG')
+			return utils.ERROR_CONVERSION
+		utils.log('JPEG image has been converted to PNG')
+	else:
+		utils.log('PNG image, no conversion needed')
+	
 	# Open the image.
-	image = utils.openImage(imgFilename)
+	image = utils.openImage(filename)
 	if image == None:
 		utils.log('ERROR: could not open the image')
-		return -1
+		return utils.ERROR_OPEN
 	else:
 		utils.log('Image opened correctly')
-
-	# TODO: if the image is JPEG, first convert it to PNG, as we need a lossless format
-	# for the message information not to be lost.
 
 	# Get the string inside the provided message file.
 	stringMessage = utils.readStringFromFile(msgFilename)
 	if stringMessage == None:
 		utils.log('ERROR: there was a problem reading the message from the provided file')
-		utils.log('Provided message file: {}'.format(msgFilename))
-		return -1
+		return utils.ERROR_READ_MSG
 	else:
 		utils.log('Message read from file:')
 		utils.log('{}'.format(stringMessage))
@@ -33,19 +47,19 @@ def encode(imgFilename, msgFilename):
 	binaryMessage = stringToBinary(stringMessage)
 	if binaryMessage == None:
 		utils.log('ERROR: could not convert the message to binary format')
-		return -1
+		return utils.ERROR_STR_TO_BIN
 	else:
 		utils.log('Message converted to binary format:')
 		utils.log('{}'.format(binaryMessage))
 	
-	# TODO: get some metadata from the image to check the size of the image is enough
+	# TODO: check the size of the image is enough
 	# to store the secret message.
 
 	# Get all the pixel values in the image.
 	pixels = utils.extractPixelsFromImage(image)
 	if pixels == None:
 		utils.log('ERROR: could not extract pixels from image')
-		return -1
+		return utils.ERROR_EXTRACT_PIXELS
 	else:
 		utils.log('Pixels extracted from image')
 	utils.log('First ten pixels in the input image:')
@@ -56,20 +70,37 @@ def encode(imgFilename, msgFilename):
 	newPixels = encodeMessageInPixels(pixels, binaryMessage)
 	if newPixels == None:
 		utils.log('ERROR: there was a problem encoding the message inside the image')
-		return -1
+		return utils.ERROR_ENCODING
 	else:
 		utils.log('Message encoded correctly inside the image')
-		utils.log('First ten pixels of the encoded image:')
-		for i in range(10):
-			utils.log('\t{} -> {}'.format(i, newPixels[i]))
+	utils.log('First ten pixels of the encoded image:')
+	for i in range(10):
+		utils.log('\t{} -> {}'.format(i, newPixels[i]))
 	
 	# Create the new image with the new pixel values and export it.
-	encodedImage = Image.new(image.mode, image.size)
-	encodedImage.putdata(newPixels)
-	encodedImage.save('encoded.png')
+	if utils.saveImage('encoded.png', image.mode, image.size, newPixels) != 0:
+		utils.log('ERROR: there was a problem saving the new pixels into the new image')
+		return utils.ERROR_SAVE_IMG
 
-	return 0
+	# If a PNG image was created on the fly from a JPEG image, remove it from the filesystem.
+	if isJPEG(fileExtension):
+		try:
+			os.remove(filename)
+		except Exception as exception:
+			utils.log(exception)
+			pass
 
+	return utils.ERROR_OK
+
+
+# Decides if the extension corresponds to a JPEG file.
+def isJPEG(extension):
+	return extension == '.jpg' or extension == '.jpeg' or extension == '.jpe'
+
+
+# Decides if the extension corresponds to a PNG file.
+def isPNG(extension):
+	return extension == '.png'
 
 # Appends the format tokens to the beginning and end of the string, then gets
 # the binary representation of the string using utf-8 as the encoder. Returns a string
@@ -77,7 +108,11 @@ def encode(imgFilename, msgFilename):
 def stringToBinary(string):
 
 	# Add format tokens to the string and transform into a byte array.
-	byteList = bytearray(utils.FORMAT_TOKEN + string + utils.FORMAT_TOKEN, encoding='utf-8')
+	try:
+		byteList = bytearray(utils.FORMAT_TOKEN + string + utils.FORMAT_TOKEN, encoding='utf-8')
+	except Exception as exception:
+		utils.log(exception)
+		return None
 
 	# Join all those bytes in one big string of only 0 and 1 chars, like '0110101'.
 	return ''.join([format(byte, '08b') for byte in byteList])

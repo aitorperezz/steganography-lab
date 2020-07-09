@@ -1,6 +1,5 @@
 import utils
 
-
 # Opens the image provided at imgFilename and looks for a hidden message inside
 # the Least Significant Bits of each pixel value. If a properly formatted secret message 
 # is found, it is written to msgFilename.
@@ -10,7 +9,7 @@ def decode(imgFilename, msgFilename):
 	image = utils.openImage(imgFilename)
 	if image == None:
 		utils.log('ERROR: could not open the image')
-		return -1
+		return utils.ERROR_OPEN
 	else:
 		utils.log('Image opened correctly')
 
@@ -18,15 +17,15 @@ def decode(imgFilename, msgFilename):
 	pixels = utils.extractPixelsFromImage(image)
 	if pixels == None:
 		utils.log('ERROR: could not extract pixels from image')
-		return -1
+		return utils.ERROR_EXTRACT_PIXELS
 	else:
 		utils.log('Pixels extracted from image')
 	
-	# Extract the binary data in the LSB of the provided pixels.
+	# Extract the binary data in the LSBs of the provided pixels.
 	binaryString = extractBinaryMessageFromPixels(pixels)
 	if binaryString == None:
 		utils.log('ERROR: could not extract the LSBs of the pixels inside the image')
-		return -1
+		return utils.ERROR_EXTRACT_MSG
 	else:
 		utils.log('Extracted the LSBs of all the pixels inside the image')
 
@@ -34,7 +33,7 @@ def decode(imgFilename, msgFilename):
 	secretMessage = extractSecretMessage(binaryString)
 	if secretMessage == None:
 		utils.log('ERROR: no secret message was found inside the image')
-		return -1
+		return utils.ERROR_EXTRACT_MSG
 	else:
 		utils.log('Secret message found inside the image:')
 		utils.log('{}'.format(secretMessage))
@@ -42,11 +41,11 @@ def decode(imgFilename, msgFilename):
 	# Finally, store the secret message inside the requested file.
 	if utils.writeStringToFile(secretMessage, msgFilename) != 0:
 		utils.log('ERROR: could not write secret message to file {}'.format(msgFilename))
-		return -1
+		return utils.ERROR_SAVE_MSG
 	else:
 		utils.log('Secret message written to file')
 	
-	return 0
+	return utils.ERROR_OK
 
 
 # Receives the list of pixels inside the suspected image and extracts the binary values

@@ -1,42 +1,71 @@
 import unittest
 from filecmp import cmp
+import os
 
 from encode import encode
 from decode import decode
 import utils
 
 
-# Test everything related to PNG images.
-class TestPNGImages(unittest.TestCase):
+class TestImages(unittest.TestCase):
 
-	# Test RGB and RGBA images, PNG format.
-	def testRGBImages(self):
-		utils.silent = True
-		decode('test_files/png16rgba.png', 'test_files/message1.txt')
-		decode('encoded.png', 'secret.txt')
-		self.assertTrue(cmp('test_files/message1.txt', 'secret.txt'))
-		decode('test_files/png16rgb.png', 'test_files/message1.txt')
-		decode('encoded.png', 'secret.txt')
-		self.assertTrue(cmp('test_files/message1.txt', 'secret.txt'))
-		decode('test_files/png8rgb.png', 'test_files/message1.txt')
-		decode('encoded.png', 'secret.txt')
-		self.assertTrue(cmp('test_files/message1.txt', 'secret.txt'))
-		decode('test_files/pngHDrgba.png', 'test_files/message1.txt')
-		decode('encoded.png', 'secret.txt')
-		self.assertTrue(cmp('test_files/message1.txt', 'secret.txt'))
+	# This function will perform compression, then decompression.
+	# If compression or decompression fails, it will fail.
+	# If both go well, it will assert equality between the initial and the decoded messages.
+	def runCompleteTest(self, imageFile, msgFile):
 
-	# Test Black and White images, PNG format.
-	def testBWImages(self):
+		# Remove garbage files if they are present
+		try:
+			os.remove('encoded.png')
+		except OSError:
+			pass
+		try:
+			os.remove('secret.txt')
+		except OSError:
+			pass
+		
+		# Execute the tests.
+		self.assertEqual(encode(imageFile, msgFile), utils.ERROR_OK)
+		self.assertEqual(decode('encoded.png', 'secret.txt'), utils.ERROR_OK)
+		self.assertTrue(cmp(msgFile, 'secret.txt'))
+
+		# Remove garbage files again.
+		try:
+			os.remove('encoded.png')
+		except OSError:
+			pass
+		try:
+			os.remove('secret.txt')
+		except OSError:
+			pass
+
+	# Test RGB and RGBA images, PNG format, should pass.
+	def testRGBImagesPNG(self):
 		utils.silent = True
-		decode('test_files/png8l.png', 'test_files/message1.txt')
-		decode('encoded.png', 'secret.txt')
-		self.assertTrue(cmp('test_files/message1.txt', 'secret.txt'))
+		self.runCompleteTest('test_files/png_16rgba.png', 'test_files/txt_normal_small.txt')
+		self.runCompleteTest('test_files/png_16rgb.png', 'test_files/txt_normal_small.txt')
+		self.runCompleteTest('test_files/png_8rgb.png', 'test_files/txt_normal_small.txt')
+		self.runCompleteTest('test_files/png_HDrgba.png', 'test_files/txt_normal_small.txt')
+
+	# Test Black and White images, PNG format, should pass.
+	def testBWImagesPNG(self):
+		utils.silent = True
+		self.runCompleteTest('test_files/png_8l.png', 'test_files/txt_normal_small.txt')
 	
-	# TODO: test really big message files on small and big images.
+	# Test all JPEG images, should pass.
+	def testJPEGImages(self):
+		utils.silent = True
+		self.runCompleteTest('test_files/jpg_small.jpg', 'test_files/txt_normal_small.txt')
+		self.runCompleteTest('test_files/jpg_big.jpg', 'test_files/txt_normal_small.txt')
+		self.runCompleteTest('test_files/jpg_huge.jpg', 'test_files/txt_normal_small.txt')
+	
+	# TODO: test big message file (lorem ipsum) on big and small files.
 
-	# TODO: test messages with strange characters.
+	# TODO: test sample UTF-8 file with lots of strange characters.
 
-# Test all of the above, but with JPEG images.
+	# TODO: test a non JPEG and non PNG image.
+
+	# TODO: test decode with an image that does not contain a message hidden.
 
 if __name__ == '__main__':
 	unittest.main()
