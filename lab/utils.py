@@ -14,6 +14,10 @@ ERROR_EXTRACT_MSG = 9 # Could not extract a valid message from the pixels of the
 ERROR_SAVE_MSG = 10 # Could not save the extracted secret message to a file.
 ERROR_MSG_TOO_LARGE = 11 # Could not encode the message inside the image. The message is too long.
 
+# Some default filenames for testing purposes.
+DEFAULT_ENCODE_OUTPUT = 'encoded.png'
+DEFAULT_DECODE_OUTPUT = 'secret.txt'
+
 # Decides if the program outputs logs to the terminal (normal mode)
 # or is silent (unit testing mode).
 silent = False

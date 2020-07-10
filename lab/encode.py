@@ -5,8 +5,8 @@ import utils
 
 # Reads an image from imgFilename and a text from msgFilename and encodes
 # the text inside the image using Least Significant Bit Steganography.
-# The output image is called 'encoded.png' and stored at the working directory.
-def encode(imgFilename, msgFilename):
+# The output image is called outputFilename.
+def encodeAlgorithm(imgFilename, msgFilename, outputFilename):
 
 	# If the image is not JPEG or PNG, return with error.
 	fileRoot, fileExtension = os.path.splitext(imgFilename)
@@ -80,7 +80,7 @@ def encode(imgFilename, msgFilename):
 		utils.log('\t{} -> {}'.format(i, newPixels[i]))
 	
 	# Create the new image with the new pixel values and export it.
-	if utils.saveImage('encoded.png', image.mode, image.size, newPixels) != 0:
+	if utils.saveImage(outputFilename, image.mode, image.size, newPixels) != 0:
 		utils.log('ERROR: there was a problem saving the new pixels into the new image')
 		return utils.ERROR_SAVE_IMG
 
@@ -103,6 +103,7 @@ def isJPEG(extension):
 # Decides if the extension corresponds to a PNG file.
 def isPNG(extension):
 	return extension == '.png'
+
 
 # Appends the format tokens to the beginning and end of the string, then gets
 # the binary representation of the string using utf-8 as the encoder. Returns a string

@@ -1,7 +1,7 @@
 import sys
 
-from encode import encode
-from decode import decode
+from encode import encodeAlgorithm
+from decode import decodeAlgorithm
 import utils
 
 
@@ -22,7 +22,7 @@ def main():
 	# Decide if we have to encode or decode:
 	if sys.argv[1] == '-e':
 		utils.log('Encoding...')
-		if encode(imgFilename, msgFilename) != 0:
+		if encodeAlgorithm(imgFilename, msgFilename, utils.DEFAULT_ENCODE_OUTPUT) != utils.ERROR_OK:
 			utils.log('ERROR: there was a problem encoding the message')
 			return -1
 		else:
@@ -30,7 +30,7 @@ def main():
 			return 0
 	elif sys.argv[1] == '-d':
 		utils.log('Decoding...')
-		if decode(imgFilename, msgFilename) != 0:
+		if decodeAlgorithm(imgFilename, msgFilename) != utils.ERROR_OK:
 			utils.log('ERROR: there was a problem decoding the message')
 			return -1
 		else:

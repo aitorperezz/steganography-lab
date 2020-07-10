@@ -3,7 +3,7 @@ import utils
 # Opens the image provided at imgFilename and looks for a hidden message inside
 # the Least Significant Bits of each pixel value. If a properly formatted secret message 
 # is found, it is written to msgFilename.
-def decode(imgFilename, msgFilename):
+def decodeAlgorithm(imgFilename, msgFilename):
 
 	# Open the image.
 	image = utils.openImage(imgFilename)
@@ -92,19 +92,20 @@ def extractSecretMessage(binaryString):
 
 	# Try to find the format token at the beginning of the byte array.
 	if not byteArray[0:len(binaryToken)] == binaryToken:
-		utils.log('ERROR: the binary stream does not start with the expected "$$$$$" token')
+		utils.log('ERROR: the binary stream does not start with the expected {} token'.format(utils.FORMAT_TOKEN))
 		return None
 	
 	# Discard the beginning.
 	byteArray = byteArray[len(binaryToken):]
 
 	# Try to find again the same sequence that marks the end of the message.
-	if not binaryToken in byteArray:
-		utils.log('ERROR: the binary stream does not end with the expected "$$$$$" token')
+	nextTokenPosition = byteArray.find(binaryToken)
+	if nextTokenPosition <= 0:
+		utils.log('ERROR: the binary stream does not end with the expected {} token'.format(utils.FORMAT_TOKEN))
 		return None
 	
 	# Discard the token at the end.
-	byteArray = byteArray[0:byteArray.find(binaryToken)]
+	byteArray = byteArray[0:nextTokenPosition]
 	
 	# Finally, try to decode the byte array into a string using utf-8 as the encoder.
 	try:

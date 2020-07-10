@@ -2,8 +2,8 @@ import unittest
 from filecmp import cmp
 import os
 
-from encode import encode
-from decode import decode
+from encode import encodeAlgorithm
+from decode import decodeAlgorithm
 import utils
 
 
@@ -16,26 +16,26 @@ class TestImages(unittest.TestCase):
 
 		# Remove garbage files if they are present
 		try:
-			os.remove('encoded.png')
+			os.remove(utils.DEFAULT_ENCODE_OUTPUT)
 		except OSError:
 			pass
 		try:
-			os.remove('secret.txt')
+			os.remove(utils.DEFAULT_DECODE_OUTPUT)
 		except OSError:
 			pass
 		
 		# Execute the tests.
-		self.assertEqual(encode(imageFile, msgFile), utils.ERROR_OK)
-		self.assertEqual(decode('encoded.png', 'secret.txt'), utils.ERROR_OK)
-		self.assertTrue(cmp(msgFile, 'secret.txt'))
+		self.assertEqual(encodeAlgorithm(imageFile, msgFile, utils.DEFAULT_ENCODE_OUTPUT), utils.ERROR_OK)
+		self.assertEqual(decodeAlgorithm(utils.DEFAULT_ENCODE_OUTPUT, utils.DEFAULT_DECODE_OUTPUT), utils.ERROR_OK)
+		self.assertTrue(cmp(msgFile, utils.DEFAULT_DECODE_OUTPUT))
 
 		# Remove garbage files again.
 		try:
-			os.remove('encoded.png')
+			os.remove(utils.DEFAULT_ENCODE_OUTPUT)
 		except OSError:
 			pass
 		try:
-			os.remove('secret.txt')
+			os.remove(utils.DEFAULT_DECODE_OUTPUT)
 		except OSError:
 			pass
 
@@ -63,7 +63,7 @@ class TestImages(unittest.TestCase):
 	def test_ASCII_huge(self):
 		utils.silent = True
 		self.runCompleteTest('test_files/jpg_huge.jpg', 'test_files/txt_ascii_huge.txt')
-		self.assertEqual(encode('test_files/png_8l.png', 'test_files/txt_ascii_huge.txt'), utils.ERROR_MSG_TOO_LARGE)
+		self.assertEqual(encodeAlgorithm('test_files/png_8l.png', 'test_files/txt_ascii_huge.txt', utils.DEFAULT_ENCODE_OUTPUT), utils.ERROR_MSG_TOO_LARGE)
 
 	# Test the sample UTF-8 file with RGBA PNG images.
 	def test_PNG_RGBA_UTF8(self):
@@ -76,7 +76,7 @@ class TestImages(unittest.TestCase):
 	# Test the sample UTF-8 file with BW PNG images.
 	def test_PNG_BW_UTF8(self):
 		utils.silent = True
-		self.assertEqual(encode('test_files/png_8l.png', 'test_files/txt_utf8.txt'), utils.ERROR_MSG_TOO_LARGE)
+		self.assertEqual(encodeAlgorithm('test_files/png_8l.png', 'test_files/txt_utf8.txt', utils.DEFAULT_ENCODE_OUTPUT), utils.ERROR_MSG_TOO_LARGE)
 
 	# TODO: test a non JPEG and non PNG image.
 

@@ -3,14 +3,11 @@ import sys
 import random
 import string
 from pathlib import Path
-from threading import Thread
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory
 from flask_socketio import SocketIO, emit
 from werkzeug.utils import secure_filename
 
-sys.path.append('./lab')
-from encode import encode
-from decode import decode
+import master
 
 # Define the folders where we will perform steganography.
 UPLOAD_FOLDER_ENCODE = os.path.abspath('./uploads/encode')
@@ -21,7 +18,7 @@ Path(UPLOAD_FOLDER_ENCODE).mkdir(parents=True, exist_ok=True)
 Path(UPLOAD_FOLDER_DECODE).mkdir(parents=True, exist_ok=True)
 
 # Only these extensions are allowed to be uploaded.
-ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', 'jpe', '.png']
+ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.jpe', '.png']
 
 # Create the app.
 app = Flask(__name__)
@@ -72,18 +69,22 @@ def encode():
 		else:
 			message = request.form['message']
 		
-		# Store the image and the message inside the uploads folder.
-		randomId = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
-		finalImageFilename = os.path.join(app.config['UPLOAD_FOLDER_ENCODE'], randomId + partialImageFilename)
+		# Decide some input filenames and store the files at the appropriate locations.
+		randomId = ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k=20)) + '_'
+		finalImageFilename = os.path.join(app.config['UPLOAD_FOLDER_ENCODE'], randomId + 'original' + fileExtension)
 		image.save(finalImageFilename)
 		finalMsgFilename = os.path.join(app.config['UPLOAD_FOLDER_ENCODE'], randomId + 'message.txt')
 		with open(finalMsgFilename, 'w') as file:
 			file.write(message)
 		
-		# Decide a name for the encoded image.
-		Thread(target=encode, args=(finalImageFilename, finalMsgFilename)).start()
+		# Decide a name for the output image and call the encoding algorithm.
+		partialOutputFilename = randomId + 'encoded.png'
+		outputFilename = os.path.join(app.config['UPLOAD_FOLDER_ENCODE'], partialOutputFilename)
+		if master.encode(finalImageFilename, finalMsgFilename, outputFilename) != 0:
+			print('ERROR: there was a problem encoding')
+			return redirect(request.url)
 		
-		return redirect(url_for('viewUploadedFile', filename='encoded.png'))
+		return redirect(url_for('viewUploadedFile', filename=partialOutputFilename))
 	
 	else:
 		return render_template('encode.html')
