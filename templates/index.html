@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<div class="container" style="text-align:center;">
+	<div id="encode-div" style="text-align:center;">
+		<button class="btn btn-default" id="encode-button"
+			onclick="location.href='{{ url_for('encode') }}';">Encode</button>
+	</div>
+	<div id="decode-div" style="text-align:center;">
+		<button class="btn btn-default" id="decode-button"
+			onclick="location.href='{{ url_for('decode') }}';">Decode</button>
+	</div>
+</div>
+
+{% endblock %}
