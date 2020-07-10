@@ -7,4 +7,4 @@ def encode(imgFilename, msgFilename, outputFilename):
 	return encodeAlgorithm(imgFilename, msgFilename, outputFilename)
 
 def decode(imgFilename, outputFilename):
-	return encodeAlgorithm(imgFilename, outputFilename)
+	return decodeAlgorithm(imgFilename, outputFilename)

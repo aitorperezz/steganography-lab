@@ -70,7 +70,7 @@ def encode():
 			message = request.form['message']
 		
 		# Decide some input filenames and store the files at the appropriate locations.
-		randomId = ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k=20)) + '_'
+		randomId = createRandomId()
 		finalImageFilename = os.path.join(app.config['UPLOAD_FOLDER_ENCODE'], randomId + 'original' + fileExtension)
 		image.save(finalImageFilename)
 		finalMsgFilename = os.path.join(app.config['UPLOAD_FOLDER_ENCODE'], randomId + 'message.txt')
@@ -84,22 +84,74 @@ def encode():
 			print('ERROR: there was a problem encoding')
 			return redirect(request.url)
 		
-		return redirect(url_for('viewUploadedFile', filename=partialOutputFilename))
+		return redirect(url_for('encoded', filename=partialOutputFilename))
 	
 	else:
 		return render_template('encode.html')
 
-@app.route('/decode')
+@app.route('/decode', methods=['GET', 'POST'])
 def decode():
-	return render_template('decode.html')
+	if request.method == 'POST':
 
-@app.route('/uploads/<filename>')
-def viewUploadedFile(filename):
+		# Check that the POST request includes a file.
+		try:
+			if not 'file' in request.files:
+				print('ERROR: no image file has been provided')
+				return redirect(request.url)
+		except Exception as exception:
+			print(exception)
+			return redirect(request.url)
+		print('An image file has been provided')
+		image = request.files['file']
+
+		# Check that the image filename is valid.
+		if image.filename == '':
+			print('ERROR: image filename is not valid')
+			return redirect(request.url)
+		else:
+			print('The image filename is valid')
+		
+		# Check the extension of the image.
+		partialImageFilename = secure_filename(image.filename)
+		fileExtension = os.path.splitext(partialImageFilename)[1]
+		if fileExtension != '.png':
+			print('ERROR: the image provided does not have a valid extension')
+			return redirect(request.url)
+		else:
+			print('The image has a valid extension')
+		
+		# Decide a filename for the input image and store it.
+		randomId = createRandomId()
+		finalImageFilename = os.path.join(app.config['UPLOAD_FOLDER_DECODE'], randomId + 'encoded' + fileExtension)
+		image.save(finalImageFilename)
+
+		# Create a name for the decoded text and call the decode algorithm.
+		partialOutputFilename = randomId + 'secret.txt'
+		outputFilename = os.path.join(app.config['UPLOAD_FOLDER_DECODE'], partialOutputFilename)
+		if master.decode(finalImageFilename, outputFilename) != 0:
+			print('ERROR: there was a problem decoding')
+			return redirect(request.url)
+		
+		# If decoding went well, redirect the user to see the text.
+		return redirect(url_for('decoded', filename=partialOutputFilename))
+
+	else:
+		return render_template('decode.html')
+
+@app.route('/encoded/<filename>')
+def encoded(filename):
 	return send_from_directory(app.config['UPLOAD_FOLDER_ENCODE'], filename)
+
+@app.route('/decoded/<filename>')
+def decoded(filename):
+	return send_from_directory(app.config['UPLOAD_FOLDER_DECODE'], filename)
 
 @app.route('/about')
 def about():
 	return render_template('about.html')
+
+def createRandomId():
+	return ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k=20)) + '_'
 
 if __name__ == '__main__':
 	app.debug = True
