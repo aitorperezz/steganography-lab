@@ -1,14 +1,21 @@
 {% extends "layout.html" %}
 
 {% block body %}
-<div class="container" style="text-align:center;">
-	<div id="encode-div" style="text-align:center;">
-		<button class="btn btn-default" id="encode-button"
-			onclick="location.href='{{ url_for('encode') }}';">Encode</button>
+
+<div class="container" style="text-align: center;">
+	<h2 class="title"><b>Steganography Lab</b></h2>
+	<h3 class="title">Dead simple web app to perform steganography on JPEG and PNG images</h3>
+	<a class="button button-primary" href="https://github.com/aitorperezz/steganography-lab">Check me out on
+		Github</a>
+</div>
+
+<div class="docs-section" style="text-align: center;">
+	<h3 class="docs-header">Select an operation</h3>
+	<div class="u-full-width">
+		<a class="button button-primary" href="{{ url_for('encode') }}">Encode</a>
 	</div>
-	<div id="decode-div" style="text-align:center;">
-		<button class="btn btn-default" id="decode-button"
-			onclick="location.href='{{ url_for('decode') }}';">Decode</button>
+	<div class="u-full-width">
+		<a class="button button-primary" href="{{ url_for('decode') }}">Decode</a>
 	</div>
 </div>
 
