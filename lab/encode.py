@@ -18,7 +18,7 @@ def encodeAlgorithm(imgFilename, msgFilename, outputFilename):
 	# If a JPEG image was provided, first convert it to PNG (a lossless 
 	# format is needed not to lose the information of the message).
 	filename = fileRoot + '.png'
-	if isJPEG(fileExtension):
+	if utils.isJPEG(fileExtension):
 		if utils.convertImage(imgFilename, filename) != 0:
 			utils.log('ERROR: could not convert image from JPEG to PNG')
 			return utils.ERROR_CONVERSION
@@ -85,7 +85,7 @@ def encodeAlgorithm(imgFilename, msgFilename, outputFilename):
 		return utils.ERROR_SAVE_IMG
 
 	# If a PNG image was created on the fly from a JPEG image, remove it from the filesystem.
-	if isJPEG(fileExtension):
+	if utils.isJPEG(fileExtension):
 		try:
 			os.remove(filename)
 		except Exception as exception:
