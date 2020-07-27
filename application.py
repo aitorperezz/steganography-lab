@@ -17,8 +17,11 @@ UPLOAD_FOLDER_DECODE = os.path.abspath('./uploads/decode')
 Path(UPLOAD_FOLDER_ENCODE).mkdir(parents=True, exist_ok=True)
 Path(UPLOAD_FOLDER_DECODE).mkdir(parents=True, exist_ok=True)
 
-# Only these extensions are allowed to be uploaded.
-ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.jpe', '.png']
+# Only these extensions are allowed for encoding.
+ALLOWED_EXTENSIONS_ENCODE = ['.jpg', '.jpeg', '.jpe', '.png', '.JPG', '.JPEG', '.JPE', '.PNG']
+
+# Only these extensions are allowed for decoding.
+ALLOWED_EXTENSIONS_DECODE = ['.png', '.PNG']
 
 # Create the app.
 app = Flask(__name__)
@@ -56,7 +59,7 @@ def encode():
 		# Check the extension of the image.
 		partialImageFilename = secure_filename(image.filename)
 		fileExtension = os.path.splitext(partialImageFilename)[1]
-		if fileExtension not in ALLOWED_EXTENSIONS:
+		if fileExtension not in ALLOWED_EXTENSIONS_ENCODE:
 			print('ERROR: the image provided does not have a valid extension')
 			return redirect(request.url)
 		else:
@@ -114,7 +117,7 @@ def decode():
 		# Check the extension of the image.
 		partialImageFilename = secure_filename(image.filename)
 		fileExtension = os.path.splitext(partialImageFilename)[1]
-		if fileExtension != '.png':
+		if fileExtension not in ALLOWED_EXTENSIONS_DECODE:
 			print('ERROR: the image provided does not have a valid extension')
 			return redirect(request.url)
 		else:
