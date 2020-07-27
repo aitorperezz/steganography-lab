@@ -18,6 +18,10 @@ ERROR_MSG_TOO_LARGE = 11 # Could not encode the message inside the image. The me
 DEFAULT_ENCODE_OUTPUT = 'encoded.png'
 DEFAULT_DECODE_OUTPUT = 'secret.txt'
 
+# Definition of the allowed extensions.
+JPEG_EXTENSIONS = ['.jpg', '.jpeg', '.jpe', '.JPG', '.JPEG', '.JPE']
+PNG_EXTENSIONS = ['.png', '.PNG']
+
 # Decides if the program outputs logs to the terminal (normal mode)
 # or is silent (unit testing mode).
 silent = False
@@ -84,3 +88,11 @@ def extractPixelsFromImage(image):
 def log(element):
 	if not silent:
 		print(element)
+
+# Decides if the file extension corresponds to a JPEG image.
+def isJPEG(extension):
+	return extension in JPEG_EXTENSIONS
+
+# Decides if the file extension corresponds to a PNG image.
+def isPNG(extension):
+	return extension in PNG_EXTENSIONS

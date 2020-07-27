@@ -10,7 +10,7 @@ def encodeAlgorithm(imgFilename, msgFilename, outputFilename):
 
 	# If the image is not JPEG or PNG, return with error.
 	fileRoot, fileExtension = os.path.splitext(imgFilename)
-	if not isJPEG(fileExtension) and not isPNG(fileExtension):
+	if not utils.isJPEG(fileExtension) and not utils.isPNG(fileExtension):
 		utils.log('ERROR: the extension of the image is not supported')
 		utils.log('ERROR: please provide a PNG or JPEG image')
 		return utils.ERROR_NOT_SUPPORTED
@@ -93,16 +93,6 @@ def encodeAlgorithm(imgFilename, msgFilename, outputFilename):
 			pass
 
 	return utils.ERROR_OK
-
-
-# Decides if the extension corresponds to a JPEG file.
-def isJPEG(extension):
-	return extension == '.jpg' or extension == '.jpeg' or extension == '.jpe'
-
-
-# Decides if the extension corresponds to a PNG file.
-def isPNG(extension):
-	return extension == '.png'
 
 
 # Appends the format tokens to the beginning and end of the string, then gets
